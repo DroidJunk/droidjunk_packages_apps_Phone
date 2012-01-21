@@ -1425,22 +1425,14 @@ public class PhoneApp extends Application implements AccelerometerListener.Orien
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-
             
+            // Tranq
             if (action.equals("TRANQ_SETTINGS")) {
                intent.getIntExtra("NetworkMode",7);
                Message msg = mHandler.obtainMessage(EVENT_SET_PREFERRED_TYPE_DONE);
                phone.setPreferredNetworkType(intent.getIntExtra("NetworkMode",7), msg);
-               Log.e("---------------------Recived---------------","-----------------------------------------------");
-               
             }
-            
-            
-            
-            
-            
-            
-            
+            // end Tranq
             
             if (action.equals(Intent.ACTION_AIRPLANE_MODE_CHANGED)) {
                 boolean enabled = System.getInt(getContentResolver(),
