@@ -1036,9 +1036,9 @@ public class NotificationMgr implements CallerInfoAsyncQuery.OnQueryCompleteList
         getIncomingCallLedSettings();
         
         notification.flags |= Notification.FLAG_SHOW_LIGHTS;
-        notification.ledARGB = mVoiceMailColor;
-        notification.ledOnMS = mVoiceMailLedOn;
-        notification.ledOffMS = mVoiceMailLedOff;
+        notification.ledARGB = mIncomingCallColor;
+        notification.ledOnMS = mIncomingCallLedOn;
+        notification.ledOffMS = mIncomingCallLedOff;
         
         
         
