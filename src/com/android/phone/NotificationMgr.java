@@ -32,6 +32,7 @@ import android.net.Uri;
 import android.os.SystemClock;
 import android.os.SystemProperties;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.provider.CallLog.Calls;
 import android.provider.ContactsContract.PhoneLookup;
 import android.telephony.PhoneNumberUtils;
@@ -48,6 +49,7 @@ import com.android.internal.telephony.Connection;
 import com.android.internal.telephony.Phone;
 import com.android.internal.telephony.PhoneBase;
 import com.android.internal.telephony.CallManager;
+
 
 /**
  * NotificationManager-related utility code for the Phone app.
@@ -94,6 +96,25 @@ public class NotificationMgr implements CallerInfoAsyncQuery.OnQueryCompleteList
     private Toast mToast;
     private boolean mShowingSpeakerphoneIcon;
     private boolean mShowingMuteIcon;
+    
+   	private Boolean mMissedCallPulse = true;
+    private int mMissedCallColor = -1;
+    private int mMissedCallLedOn = 1;
+    private int mMissedCallLedOff = 0;
+        
+   	private Boolean mVoiceMailPulse = true;
+    private int mVoiceMailColor = -1;
+    private int mVoiceMailLedOn = 1;
+    private int mVoiceMailLedOff = 0;
+    
+    
+   	private Boolean mIncomingCallPulse = true;
+    private int mIncomingCallColor = -1;
+    private int mIncomingCallLedOn = 1;
+    private int mIncomingCallLedOff = 0;
+
+    
+    
 
     public StatusBarHelper statusBarHelper;
 
@@ -472,9 +493,58 @@ public class NotificationMgr implements CallerInfoAsyncQuery.OnQueryCompleteList
         // It will take care of clearing the list of missed calls.
         note.deleteIntent = createClearMissedCallsIntent();
 
-        configureLedNotification(note);
+        
+        
+        
+        
+        //configureLedNotification(note);
+        
+        getMissedCallLedSettings();
+       
+        note.flags |= Notification.FLAG_INSISTENT;
+        note.flags |= Notification.FLAG_SHOW_LIGHTS;
+        				   
+        note.ledARGB = mMissedCallColor;
+        note.ledOnMS = mMissedCallLedOn;
+        note.ledOffMS = mMissedCallLedOff;
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         mNotificationManager.notify(MISSED_CALL_NOTIFICATION, note);
     }
+    
+    
+    // Tranq
+    // Get the missed call led settings
+    private void getMissedCallLedSettings(){
+
+    	Cursor cur = Settings.NotifOptions.getMissedCallLed(mContext.getContentResolver());
+    	
+    	mMissedCallPulse = cur.getString(2).equals("true");
+        mMissedCallColor = cur.getInt(3);
+        if (mMissedCallPulse) {
+        	mMissedCallLedOn = cur.getInt(4) * 100;
+        	mMissedCallLedOff = cur.getInt(5) * 100;
+        } else {
+        	mMissedCallLedOn = 1;
+        	mMissedCallLedOff = 0;
+        }
+    }        
+    
+    
+    
+    
+    
 
     /** Returns an intent to be invoked when the missed call notification is cleared. */
     private PendingIntent createClearMissedCallsIntent() {
@@ -956,6 +1026,43 @@ public class NotificationMgr implements CallerInfoAsyncQuery.OnQueryCompleteList
                 }
             }
         }
+        
+        
+        
+        
+        
+        
+        
+        getIncomingCallLedSettings();
+        
+        notification.flags |= Notification.FLAG_SHOW_LIGHTS;
+        notification.ledARGB = mVoiceMailColor;
+        notification.ledOnMS = mVoiceMailLedOn;
+        notification.ledOffMS = mVoiceMailLedOff;
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
 
         if (DBG) log("Notifying IN_CALL_NOTIFICATION: " + notification);
         mNotificationManager.notify(IN_CALL_NOTIFICATION,
@@ -968,6 +1075,24 @@ public class NotificationMgr implements CallerInfoAsyncQuery.OnQueryCompleteList
         updateMuteNotification();
     }
 
+    // Tranq
+    // Get the incoming call led settings
+    private void getIncomingCallLedSettings(){
+
+    	Cursor cur = Settings.NotifOptions.getIncomingCallLed(mContext.getContentResolver());
+    	
+    	mIncomingCallPulse = cur.getString(2).equals("true");
+        mIncomingCallColor = cur.getInt(3);
+        if (mIncomingCallPulse) {
+        	mIncomingCallLedOn = cur.getInt(4) * 100;
+        	mIncomingCallLedOff = cur.getInt(5) * 100;
+        } else {
+        	mIncomingCallLedOn = 1;
+        	mIncomingCallLedOff = 0;
+        }
+    }        
+    
+    
     /**
      * Implemented for CallerInfoAsyncQuery.OnQueryCompleteListener interface.
      * refreshes the contentView when called.
@@ -1125,11 +1250,66 @@ public class NotificationMgr implements CallerInfoAsyncQuery.OnQueryCompleteList
             notification.defaults |= Notification.DEFAULT_VIBRATE;
             notification.flags |= Notification.FLAG_NO_CLEAR;
             configureLedNotification(notification);
+
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            getVoiceMailLedSettings();
+            
+            
+            notification.ledARGB = mVoiceMailColor;
+            notification.ledOnMS = mVoiceMailLedOn;
+            notification.ledOffMS = mVoiceMailLedOff;
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
             mNotificationManager.notify(VOICEMAIL_NOTIFICATION, notification);
         } else {
             mNotificationManager.cancel(VOICEMAIL_NOTIFICATION);
         }
     }
+    
+    
+    // Tranq
+    // Get the voice mail led settings
+    private void getVoiceMailLedSettings(){
+
+    	Cursor cur = Settings.NotifOptions.getIncomingCallLed(mContext.getContentResolver());
+    	
+    	mVoiceMailPulse = cur.getString(2).equals("true");
+        mVoiceMailColor = cur.getInt(3);
+        if (mVoiceMailPulse) {
+        	mVoiceMailLedOn = cur.getInt(4) * 100;
+        	mVoiceMailLedOff = cur.getInt(5) * 100;
+        } else {
+        	mVoiceMailLedOn = 1;
+        	mVoiceMailLedOff = 0;
+        }
+    }    
+    
+    
+    
 
     /**
      * Updates the message call forwarding indicator notification.
