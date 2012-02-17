@@ -38,6 +38,7 @@ import com.android.internal.telephony.Phone;
 
 
 
+
 /**
  * Ringer manager for the Phone app.
  */
@@ -53,11 +54,11 @@ public class Ringer {
     private static final int PAUSE_LENGTH = 1000; // ms
     
     
-   	private Boolean mIncomingCallPulse = true;
+   //	private Boolean mIncomingCallPulse = true;
     private int mIncomingCallColor = -1;
     private int mIncomingCallLedOn = 1;
     private int mIncomingCallLedOff = 0;
-    private LightsService.Light mNotificationLight;
+
     
 
     /** The singleton instance. */
@@ -155,6 +156,8 @@ public class Ringer {
     void ring() {
     	getIncomingCallLedSettings();
     	
+    	
+    	
         if (DBG) log("ring()...");
 
         synchronized (this) {
@@ -164,11 +167,8 @@ public class Ringer {
 		} else {
                     //mPowerManager.setAttentionLight(true, 0x00ffffff);
 					// Tranq
-					if (mIncomingCallPulse) {
-						mNotificationLight.setFlashing(mIncomingCallColor,1, mIncomingCallLedOn, mIncomingCallLedOff);
-					} else {
-						mPowerManager.setAttentionLight(true, mIncomingCallColor);
-					}
+					mPowerManager.setAttentionLight(true, mIncomingCallColor);
+					
 					
 		}
             } catch (RemoteException ex) {
@@ -224,15 +224,15 @@ public class Ringer {
 
     	Cursor cur = Settings.NotifOptions.getIncomingCallLed(mContext.getContentResolver());
     	
-    	mIncomingCallPulse = cur.getString(2).equals("true");
+    	//mIncomingCallPulse = cur.getString(2).equals("true");
         mIncomingCallColor = cur.getInt(3);
-        if (mIncomingCallPulse) {
-        	mIncomingCallLedOn = cur.getInt(4) * 100;
-        	mIncomingCallLedOff = cur.getInt(5) * 100;
-        } else {
-        	mIncomingCallLedOn = 1;
-        	mIncomingCallLedOff = 0;
-        }
+        //if (mIncomingCallPulse) {
+        //	mIncomingCallLedOn = cur.getInt(4) * 100;
+        //	mIncomingCallLedOff = cur.getInt(5) * 100;
+        //} else {
+        //	mIncomingCallLedOn = 1;
+        //	mIncomingCallLedOff = 0;
+        //}
     }    
     
     
@@ -262,11 +262,11 @@ public class Ringer {
             	// Tranq
                 //mPowerManager.setAttentionLight(false, 0x00000000);
                 
-				if (mIncomingCallPulse) {
-					mNotificationLight.turnOff();
-				} else {
+				//if (mIncomingCallPulse) {
+				//	mNotificationLight.turnOff();
+				//} else {
 					mPowerManager.setAttentionLight(false, 0x00000000);
-				}
+				//}
                 
                 
                 
