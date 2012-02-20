@@ -157,7 +157,6 @@ public class Ringer {
     	getIncomingCallLedSettings();
     	
     	
-    	
         if (DBG) log("ring()...");
 
         synchronized (this) {
@@ -233,6 +232,7 @@ public class Ringer {
         //	mIncomingCallLedOn = 1;
         //	mIncomingCallLedOff = 0;
         //}
+        cur.close();
     }    
     
     

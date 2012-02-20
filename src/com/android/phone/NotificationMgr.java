@@ -481,46 +481,21 @@ public class NotificationMgr implements CallerInfoAsyncQuery.OnQueryCompleteList
         }
 
         // make the notification
-        Notification note = new Notification(
-                android.R.drawable.stat_notify_missed_call, // icon
-                mContext.getString(R.string.notification_missedCallTicker, callName), // tickerText
-                date // when
-                );
-        note.setLatestEventInfo(mContext, mContext.getText(titleResId), expandedText,
-                PendingIntent.getActivity(mContext, 0, callLogIntent, 0));
-        note.flags |= Notification.FLAG_AUTO_CANCEL;
-        // This intent will be called when the notification is dismissed.
-        // It will take care of clearing the list of missed calls.
-        note.deleteIntent = createClearMissedCallsIntent();
-
+        Notification.Builder note = new Notification.Builder(mContext);
         
-        
-        
-        
-        //configureLedNotification(note);
+        note.setSmallIcon(android.R.drawable.stat_notify_missed_call);
+        note.setContentInfo(mContext.getText(titleResId));
+        note.setContentTitle(mContext.getText(titleResId));
+        note.setContentText(expandedText);
+        note.setTicker(mContext.getString(R.string.notification_missedCallTicker, callName));
+        note.setContentIntent(PendingIntent.getActivity(mContext, 0, callLogIntent, 0));
+        note.setDeleteIntent(createClearMissedCallsIntent());
+        note.setAutoCancel(true);
+        note.setWhen(date);
         
         getMissedCallLedSettings();
-       
-        note.flags |= Notification.FLAG_INSISTENT;
-        note.flags |= Notification.FLAG_SHOW_LIGHTS;
-        				   
-        note.ledARGB = mMissedCallColor;
-        note.ledOnMS = mMissedCallLedOn;
-        note.ledOffMS = mMissedCallLedOff;
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        mNotificationManager.notify(MISSED_CALL_NOTIFICATION, note);
+        note.setLights(mMissedCallColor, mMissedCallLedOn, mMissedCallLedOff);
+        mNotificationManager.notify(MISSED_CALL_NOTIFICATION, note.getNotification());
     }
     
     
@@ -539,6 +514,7 @@ public class NotificationMgr implements CallerInfoAsyncQuery.OnQueryCompleteList
         	mMissedCallLedOn = 1;
         	mMissedCallLedOff = 0;
         }
+        cur.close();
     }        
     
     
@@ -1027,41 +1003,12 @@ public class NotificationMgr implements CallerInfoAsyncQuery.OnQueryCompleteList
             }
         }
         
-        
-        
-        
-        
-        
-        
         getIncomingCallLedSettings();
         
         notification.flags |= Notification.FLAG_SHOW_LIGHTS;
         notification.ledARGB = mIncomingCallColor;
         notification.ledOnMS = mIncomingCallLedOn;
         notification.ledOffMS = mIncomingCallLedOff;
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
         
 
         if (DBG) log("Notifying IN_CALL_NOTIFICATION: " + notification);
@@ -1090,6 +1037,7 @@ public class NotificationMgr implements CallerInfoAsyncQuery.OnQueryCompleteList
         	mIncomingCallLedOn = 1;
         	mIncomingCallLedOff = 0;
         }
+        cur.close();
     }        
     
     
@@ -1249,39 +1197,13 @@ public class NotificationMgr implements CallerInfoAsyncQuery.OnQueryCompleteList
             notification.defaults |= Notification.DEFAULT_SOUND;
             notification.defaults |= Notification.DEFAULT_VIBRATE;
             notification.flags |= Notification.FLAG_NO_CLEAR;
-            configureLedNotification(notification);
-
-            
-            
-            
-            
-            
-            
-            
-            
-            
+            notification.flags |= Notification.FLAG_SHOW_LIGHTS;
+         
             getVoiceMailLedSettings();
-            
             
             notification.ledARGB = mVoiceMailColor;
             notification.ledOnMS = mVoiceMailLedOn;
             notification.ledOffMS = mVoiceMailLedOff;
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
             
             
             mNotificationManager.notify(VOICEMAIL_NOTIFICATION, notification);
@@ -1295,7 +1217,7 @@ public class NotificationMgr implements CallerInfoAsyncQuery.OnQueryCompleteList
     // Get the voice mail led settings
     private void getVoiceMailLedSettings(){
 
-    	Cursor cur = Settings.NotifOptions.getIncomingCallLed(mContext.getContentResolver());
+    	Cursor cur = Settings.NotifOptions.getVoiceMailLed(mContext.getContentResolver());
     	
     	mVoiceMailPulse = cur.getString(2).equals("true");
         mVoiceMailColor = cur.getInt(3);

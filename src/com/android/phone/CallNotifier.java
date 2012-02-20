@@ -1213,6 +1213,12 @@ public class CallNotifier extends Handler
                 // Show the "Missed call" notification.
                 // (Note we *don't* do this if this was an incoming call that
                 // the user deliberately rejected.)
+               
+            	// Tranq - ICS called for the notification before enabling
+            	// notifications after a call.  I am not sure if enabling
+            	// here will have any side effects *********************
+            	mApplication.notificationMgr.statusBarHelper
+                .enableNotificationAlerts(true);
                 showMissedCallNotification(c, date);
             }
 
