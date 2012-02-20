@@ -222,16 +222,7 @@ public class Ringer {
     private void getIncomingCallLedSettings(){
 
     	Cursor cur = Settings.NotifOptions.getIncomingCallLed(mContext.getContentResolver());
-    	
-    	//mIncomingCallPulse = cur.getString(2).equals("true");
-        mIncomingCallColor = cur.getInt(3);
-        //if (mIncomingCallPulse) {
-        //	mIncomingCallLedOn = cur.getInt(4) * 100;
-        //	mIncomingCallLedOff = cur.getInt(5) * 100;
-        //} else {
-        //	mIncomingCallLedOn = 1;
-        //	mIncomingCallLedOff = 0;
-        //}
+    	mIncomingCallColor = cur.getInt(3);
         cur.close();
     }    
     
