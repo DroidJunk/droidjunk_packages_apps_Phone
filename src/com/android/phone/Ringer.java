@@ -17,6 +17,7 @@
 package com.android.phone;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.media.AudioManager;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -30,9 +31,14 @@ import android.os.ServiceManager;
 import android.os.SystemClock;
 import android.os.SystemProperties;
 import android.os.Vibrator;
+import android.provider.Settings;
 import android.util.Log;
-
 import com.android.internal.telephony.Phone;
+
+
+
+
+
 /**
  * Ringer manager for the Phone app.
  */
@@ -46,6 +52,14 @@ public class Ringer {
 
     private static final int VIBRATE_LENGTH = 1000; // ms
     private static final int PAUSE_LENGTH = 1000; // ms
+    
+    
+   //	private Boolean mIncomingCallPulse = true;
+    private int mIncomingCallColor = -1;
+    private int mIncomingCallLedOn = 1;
+    private int mIncomingCallLedOff = 0;
+
+    
 
     /** The singleton instance. */
     private static Ringer sInstance;
@@ -140,6 +154,9 @@ public class Ringer {
      * Starts the ringtone and/or vibrator
      */
     void ring() {
+    	getIncomingCallLedSettings();
+    	
+    	
         if (DBG) log("ring()...");
 
         synchronized (this) {
@@ -147,7 +164,11 @@ public class Ringer {
                 if (PhoneApp.getInstance().showBluetoothIndication()) {
                     mPowerManager.setAttentionLight(true, 0x000000ff);
 		} else {
-                    mPowerManager.setAttentionLight(true, 0x00ffffff);
+                    //mPowerManager.setAttentionLight(true, 0x00ffffff);
+					// Tranq
+					mPowerManager.setAttentionLight(true, mIncomingCallColor);
+					
+					
 		}
             } catch (RemoteException ex) {
                 // the other end of this binder call is in the system process.
@@ -193,11 +214,32 @@ public class Ringer {
         }
     }
 
+    
+    
+    
+    // Tranq
+    // Get the incoming call led settings
+    private void getIncomingCallLedSettings(){
+
+    	Cursor cur = Settings.NotifOptions.getIncomingCallLed(mContext.getContentResolver());
+    	mIncomingCallColor = cur.getInt(3);
+        cur.close();
+    }    
+    
+    
+    
+    
+    
+    
+    
+    
     boolean shouldVibrate() {
         AudioManager audioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
         return audioManager.shouldVibrate(AudioManager.VIBRATE_TYPE_RINGER);
     }
 
+    
+    
     /**
      * Stops the ringtone and/or vibrator if any of these are actually
      * ringing/vibrating.
@@ -207,7 +249,18 @@ public class Ringer {
             if (DBG) log("stopRing()...");
 
             try {
-                mPowerManager.setAttentionLight(false, 0x00000000);
+            	
+            	// Tranq
+                //mPowerManager.setAttentionLight(false, 0x00000000);
+                
+				//if (mIncomingCallPulse) {
+				//	mNotificationLight.turnOff();
+				//} else {
+					mPowerManager.setAttentionLight(false, 0x00000000);
+				//}
+                
+                
+                
             } catch (RemoteException ex) {
                 // the other end of this binder call is in the system process.
             }

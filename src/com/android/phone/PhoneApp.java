@@ -531,6 +531,9 @@ public class PhoneApp extends Application implements AccelerometerListener.Orien
             intentFilter.addAction(TelephonyIntents.ACTION_RADIO_TECHNOLOGY_CHANGED);
             intentFilter.addAction(TelephonyIntents.ACTION_SERVICE_STATE_CHANGED);
             intentFilter.addAction(TelephonyIntents.ACTION_EMERGENCY_CALLBACK_MODE_CHANGED);
+            
+            intentFilter.addAction("TRANQ_SETTINGS");
+            
             if (mTtyEnabled) {
                 intentFilter.addAction(TtyIntent.TTY_PREFERRED_MODE_CHANGE_ACTION);
             }
@@ -1425,9 +1428,20 @@ public class PhoneApp extends Application implements AccelerometerListener.Orien
      * Receiver for misc intent broadcasts the Phone app cares about.
      */
     private class PhoneAppBroadcastReceiver extends BroadcastReceiver {
+    	private static final int EVENT_SET_PREFERRED_TYPE_DONE = 1001;
+    	
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
+            
+            // Tranq
+            if (action.equals("TRANQ_SETTINGS")) {
+               intent.getIntExtra("NetworkMode",7);
+               Message msg = mHandler.obtainMessage(EVENT_SET_PREFERRED_TYPE_DONE);
+               phone.setPreferredNetworkType(intent.getIntExtra("NetworkMode",7), msg);
+            }
+            // end Tranq
+            
             if (action.equals(Intent.ACTION_AIRPLANE_MODE_CHANGED)) {
                 boolean enabled = System.getInt(getContentResolver(),
                         System.AIRPLANE_MODE_ON, 0) == 0;
