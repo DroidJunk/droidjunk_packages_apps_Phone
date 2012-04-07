@@ -199,6 +199,11 @@ public class PhoneApp extends Application implements AccelerometerListener.Orien
     private KeyguardManager mKeyguardManager;
     private AccelerometerListener mAccelerometerListener;
     private int mOrientation = AccelerometerListener.ORIENTATION_UNKNOWN;
+    
+    
+    // Junk
+	private final String Junk_Settings = "JUNK_SETTINGS";
+    
 
     // Broadcast receiver for various intent broadcasts (see onCreate())
     private final BroadcastReceiver mReceiver = new PhoneAppBroadcastReceiver();
@@ -532,7 +537,7 @@ public class PhoneApp extends Application implements AccelerometerListener.Orien
             intentFilter.addAction(TelephonyIntents.ACTION_SERVICE_STATE_CHANGED);
             intentFilter.addAction(TelephonyIntents.ACTION_EMERGENCY_CALLBACK_MODE_CHANGED);
             
-            intentFilter.addAction("TRANQ_SETTINGS");
+            intentFilter.addAction(Junk_Settings);
             
             if (mTtyEnabled) {
                 intentFilter.addAction(TtyIntent.TTY_PREFERRED_MODE_CHANGE_ACTION);
@@ -1434,13 +1439,13 @@ public class PhoneApp extends Application implements AccelerometerListener.Orien
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             
-            // Tranq
-            if (action.equals("TRANQ_SETTINGS")) {
+            // Junk
+            if (action.equals(Junk_Settings)) {
                intent.getIntExtra("NetworkMode",7);
                Message msg = mHandler.obtainMessage(EVENT_SET_PREFERRED_TYPE_DONE);
                phone.setPreferredNetworkType(intent.getIntExtra("NetworkMode",7), msg);
             }
-            // end Tranq
+            // end Junk
             
             if (action.equals(Intent.ACTION_AIRPLANE_MODE_CHANGED)) {
                 boolean enabled = System.getInt(getContentResolver(),

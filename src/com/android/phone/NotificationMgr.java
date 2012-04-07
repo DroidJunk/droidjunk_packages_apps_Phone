@@ -503,7 +503,7 @@ public class NotificationMgr implements CallerInfoAsyncQuery.OnQueryCompleteList
     }
     
     
-    // Tranq
+    // Junk
     // Get the missed call led settings
     private void getMissedCallLedSettings(){
 
@@ -1036,7 +1036,7 @@ public class NotificationMgr implements CallerInfoAsyncQuery.OnQueryCompleteList
         updateMuteNotification();
     }
 
-    // Tranq
+    // Junk
     // Get the incoming call led settings
     private void getIncomingCallLedSettings(){
 
@@ -1239,7 +1239,7 @@ public class NotificationMgr implements CallerInfoAsyncQuery.OnQueryCompleteList
     }
     
     
-    // Tranq
+    // Junk
     // Get the voice mail led settings
     private void getVoiceMailLedSettings(){
 
