@@ -202,7 +202,7 @@ public class PhoneApp extends Application implements AccelerometerListener.Orien
     
     
     // Junk
-	private final String Junk_Settings = "JUNK_SETTINGS";
+	private final String Junk_Toggle_Settings = "JUNK_TOGGLE_SETTINGS";
     
 
     // Broadcast receiver for various intent broadcasts (see onCreate())
@@ -537,7 +537,7 @@ public class PhoneApp extends Application implements AccelerometerListener.Orien
             intentFilter.addAction(TelephonyIntents.ACTION_SERVICE_STATE_CHANGED);
             intentFilter.addAction(TelephonyIntents.ACTION_EMERGENCY_CALLBACK_MODE_CHANGED);
             
-            intentFilter.addAction(Junk_Settings);
+            intentFilter.addAction(Junk_Toggle_Settings);
             
             if (mTtyEnabled) {
                 intentFilter.addAction(TtyIntent.TTY_PREFERRED_MODE_CHANGE_ACTION);
@@ -1440,7 +1440,7 @@ public class PhoneApp extends Application implements AccelerometerListener.Orien
             String action = intent.getAction();
             
             // Junk
-            if (action.equals(Junk_Settings)) {
+            if (action.equals(Junk_Toggle_Settings)) {
                intent.getIntExtra("NetworkMode",7);
                Message msg = mHandler.obtainMessage(EVENT_SET_PREFERRED_TYPE_DONE);
                phone.setPreferredNetworkType(intent.getIntExtra("NetworkMode",7), msg);
