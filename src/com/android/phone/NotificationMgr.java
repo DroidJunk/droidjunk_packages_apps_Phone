@@ -126,6 +126,27 @@ public class NotificationMgr implements CallerInfoAsyncQuery.OnQueryCompleteList
     private QueryHandler mQueryHandler = null;
     private static final int CALL_LOG_TOKEN = -1;
     private static final int CONTACT_TOKEN = -2;
+    
+    
+    // Junk
+    private Boolean MissedCallLedOn = true;
+   	private Boolean mMissedCallPulse = true;
+    private int mMissedCallColor = -1;
+    private int mMissedCallLedOn = 1;
+    private int mMissedCallLedOff = 0;
+        
+    private Boolean VoiceMailLedOn = true;
+   	private Boolean mVoiceMailPulse = true;
+    private int mVoiceMailColor = -1;
+    private int mVoiceMailLedOn = 1;
+    private int mVoiceMailLedOff = 0;
+    
+    private Boolean IncomingCallLedOn = true;
+   	private Boolean mIncomingCallPulse = true;
+    private int mIncomingCallColor = -1;
+    private int mIncomingCallLedOn = 1;
+    private int mIncomingCallLedOff = 0;
+    // End Junk
 
     /**
      * Private constructor (this is a singleton).
@@ -539,6 +560,7 @@ public class NotificationMgr implements CallerInfoAsyncQuery.OnQueryCompleteList
                 .setAutoCancel(true)
                 .setDeleteIntent(createClearMissedCallsIntent());
 
+
         // Simple workaround for issue 6476275; refrain having actions when the given number seems
         // not a real one but a non-number which was embedded by methods outside (like
         // PhoneUtils#modifyForSpecialCnapCases()).
@@ -568,6 +590,10 @@ public class NotificationMgr implements CallerInfoAsyncQuery.OnQueryCompleteList
             }
         }
 
+        // Junk
+        builder.setLights(mMissedCallColor, mMissedCallLedOn, mMissedCallLedOff);
+        // End Junk
+        
         Notification notification = builder.getNotification();
         configureLedNotification(notification);
         mNotificationManager.notify(MISSED_CALL_NOTIFICATION, notification);
@@ -1094,6 +1120,11 @@ public class NotificationMgr implements CallerInfoAsyncQuery.OnQueryCompleteList
                     PhoneApp.createHangUpOngoingCallPendingIntent(mContext));
         }
 
+        // Junk
+        builder.setLights(mIncomingCallColor, mIncomingCallLedOn, mIncomingCallLedOff);       
+        // End Junk
+        
+        
         Notification notification = builder.getNotification();
         if (DBG) log("Notifying IN_CALL_NOTIFICATION: " + notification);
         mNotificationManager.notify(IN_CALL_NOTIFICATION, notification);
@@ -1277,6 +1308,12 @@ public class NotificationMgr implements CallerInfoAsyncQuery.OnQueryCompleteList
                 notification.defaults |= Notification.DEFAULT_VIBRATE;
             }
 
+            // Junk
+            notification.ledARGB = mVoiceMailColor;
+            notification.ledOnMS = mVoiceMailLedOn;
+            notification.ledOffMS = mVoiceMailLedOff;
+            // End Junk
+            
             notification.flags |= Notification.FLAG_NO_CLEAR;
             configureLedNotification(notification);
             mNotificationManager.notify(VOICEMAIL_NOTIFICATION, notification);

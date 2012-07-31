@@ -114,6 +114,11 @@ public class PhoneApp extends Application implements AccelerometerListener.Orien
     public static final int MMI_CANCEL = 53;
     // Don't use message codes larger than 99 here; those are reserved for
     // the individual Activities of the Phone UI.
+    
+    // Junk
+    private static final int EVENT_SET_PREFERRED_TYPE_DONE = 1001;
+ 	private final String Junk_Toggle_Settings = "JUNK_TOGGLE_SETTINGS";
+ 	// End Junk
 
     /**
      * Allowable values for the poke lock code (timeout between a user activity and the
@@ -593,6 +598,9 @@ public class PhoneApp extends Application implements AccelerometerListener.Orien
                 intentFilter.addAction(TtyIntent.TTY_PREFERRED_MODE_CHANGE_ACTION);
             }
             intentFilter.addAction(AudioManager.RINGER_MODE_CHANGED_ACTION);
+            // Junk
+            intentFilter.addAction(Junk_Toggle_Settings);
+            // End Junk
             registerReceiver(mReceiver, intentFilter);
 
             // Use a separate receiver for ACTION_MEDIA_BUTTON broadcasts,
@@ -1596,6 +1604,14 @@ public class PhoneApp extends Application implements AccelerometerListener.Orien
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
+            // Junk
+            if (action.equals(Junk_Toggle_Settings)) {
+               intent.getIntExtra("NetworkMode",7);
+               Message msg = mHandler.obtainMessage(EVENT_SET_PREFERRED_TYPE_DONE);
+               phone.setPreferredNetworkType(intent.getIntExtra("NetworkMode",7), msg);
+            }
+            // End Junk
+            
             if (action.equals(Intent.ACTION_AIRPLANE_MODE_CHANGED)) {
                 boolean enabled = System.getInt(getContentResolver(),
                         System.AIRPLANE_MODE_ON, 0) == 0;
