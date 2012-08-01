@@ -29,6 +29,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -149,7 +150,10 @@ public class NotificationMgr implements CallerInfoAsyncQuery.OnQueryCompleteList
 	private final String VOICE_MAIL_LED_PULSE = "voice_mail_pulse";
 	private final String VOICE_MAIL_LED_ON_MS = "voice_mail_led_on_ms";
 	private final String VOICE_MAIL_LED_OFF_MS = "voice_mail_led_off_ms";
-    private final BroadcastReceiver mReceiver = new LedReceiver();
+    
+	private SharedPreferences sp
+	;
+	private final BroadcastReceiver mReceiver = new LedReceiver();
     
     private Boolean MissedCallLedOn = true;
    	private Boolean mMissedCallPulse = true;
@@ -191,6 +195,32 @@ public class NotificationMgr implements CallerInfoAsyncQuery.OnQueryCompleteList
         // Junk
         IntentFilter intentFilter = new IntentFilter(Junk_Led_Settings);
         mContext.registerReceiver(mReceiver, intentFilter);
+        
+  		Context settingsContext = mContext;
+		try {
+			settingsContext = mContext.createPackageContext("com.android.settings",0);
+		} catch (NameNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		sp = settingsContext.getSharedPreferences("Junk_Settings", Context.MODE_PRIVATE);
+		
+		MissedCallLedOn = sp.getBoolean(MISSED_CALL_LED_ON, MissedCallLedOn);
+		mMissedCallPulse = sp.getBoolean(MISSED_CALL_LED_PULSE, mMissedCallPulse);
+		mMissedCallColor = sp.getInt(MISSED_CALL_LED_COLOR, mMissedCallColor);
+		mMissedCallLedOn = sp.getInt(MISSED_CALL_LED_ON_MS, mMissedCallLedOn);
+		mMissedCallLedOff = sp.getInt(MISSED_CALL_LED_OFF_MS, mMissedCallLedOff);
+		IncomingCallLedOn = sp.getBoolean(INCOMING_CALL_LED_ON, MissedCallLedOn);
+		mIncomingCallPulse = sp.getBoolean(INCOMING_CALL_LED_PULSE, mIncomingCallPulse);
+		mIncomingCallColor = sp.getInt(INCOMING_CALL_LED_COLOR, mIncomingCallColor);
+		mIncomingCallLedOn = sp.getInt(INCOMING_CALL_LED_ON_MS, mIncomingCallLedOn);
+		mIncomingCallLedOff = sp.getInt(INCOMING_CALL_LED_OFF_MS, mIncomingCallLedOff);
+		VoiceMailLedOn = sp.getBoolean(VOICE_MAIL_LED_ON, VoiceMailLedOn);
+		mVoiceMailPulse = sp.getBoolean(VOICE_MAIL_LED_PULSE, mVoiceMailPulse);
+		mVoiceMailColor = sp.getInt(VOICE_MAIL_LED_COLOR, mVoiceMailColor);
+		mVoiceMailLedOn = sp.getInt(VOICE_MAIL_LED_ON_MS, mVoiceMailLedOn);
+		mVoiceMailLedOff = sp.getInt(VOICE_MAIL_LED_OFF_MS, mVoiceMailLedOff);
         // End Junk
     }
 
