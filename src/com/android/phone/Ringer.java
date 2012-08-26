@@ -35,6 +35,7 @@ import android.provider.Settings;
 import android.util.Log;
 
 import com.android.internal.telephony.Phone;
+
 /**
  * Ringer manager for the Phone app.
  */
@@ -66,6 +67,7 @@ public class Ringer {
     private long mFirstRingEventTime = -1;
     private long mFirstRingStartTime = -1;
 
+    
     /**
      * Initialize the singleton Ringer instance.
      * This is only done once, at startup, from PhoneApp.onCreate().
@@ -152,7 +154,10 @@ public class Ringer {
                 if (PhoneApp.getInstance().showBluetoothIndication()) {
                     mPowerManager.setAttentionLight(true, 0x000000ff);
                 } else {
-                    mPowerManager.setAttentionLight(true, 0x00ffffff);
+                	// Junk
+                    //mPowerManager.setAttentionLight(true, 0x00ffffff);
+                    mPowerManager.setAttentionLight(true, NotificationMgr.mIncomingCallColor);
+                    // End Junk
                 }
             } catch (RemoteException ex) {
                 // the other end of this binder call is in the system process.
