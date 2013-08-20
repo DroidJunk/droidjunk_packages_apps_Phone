@@ -539,7 +539,7 @@ public class NotificationMgr implements CallerInfoAsyncQuery.OnQueryCompleteList
                 .setContentIntent(PendingIntent.getActivity(mContext, 0, callLogIntent, 0))
                 .setAutoCancel(true)
                 .setDeleteIntent(createClearMissedCallsIntent());
-
+        		.setLights(argb, 100, 100);
         // Simple workaround for issue 6476275; refrain having actions when the given number seems
         // not a real one but a non-number which was embedded by methods outside (like
         // PhoneUtils#modifyForSpecialCnapCases()).
