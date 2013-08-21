@@ -21,14 +21,18 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.StatusBarManager;
 import android.content.AsyncQueryHandler;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
@@ -127,6 +131,51 @@ public class NotificationMgr implements CallerInfoAsyncQuery.OnQueryCompleteList
     private QueryHandler mQueryHandler = null;
     private static final int CALL_LOG_TOKEN = -1;
     private static final int CONTACT_TOKEN = -2;
+    
+    
+    // Junk
+    private final String Junk_Led_Settings = "JUNK_LED_SETTINGS";
+	private final String INCOMING_CALL_LED_ON = "incoming_call_led_on";
+	private final String INCOMING_CALL_LED_COLOR = "incoming_call_color";
+	private final String INCOMING_CALL_LED_PULSE = "incoming_call_pulse";
+	private final String INCOMING_CALL_LED_ON_MS = "incoming_led_on_ms";
+	private final String INCOMING_CALL_LED_OFF_MS = "incoming_led_off_ms";
+
+	private final String MISSED_CALL_LED_ON = "missed_call_led_on";
+	private final String MISSED_CALL_LED_COLOR = "missed_call_color";
+	private final String MISSED_CALL_LED_PULSE = "missed_call_pulse";
+	private final String MISSED_CALL_LED_ON_MS = "missed_call_led_on_ms";
+	private final String MISSED_CALL_LED_OFF_MS = "missed_call_led_off_ms";
+
+	private final String VOICE_MAIL_LED_ON = "voice_mail_led_on";
+	private final String VOICE_MAIL_LED_COLOR = "voice_mail_color";
+	private final String VOICE_MAIL_LED_PULSE = "voice_mail_pulse";
+	private final String VOICE_MAIL_LED_ON_MS = "voice_mail_led_on_ms";
+	private final String VOICE_MAIL_LED_OFF_MS = "voice_mail_led_off_ms";
+    
+	private SharedPreferences sp;
+	
+	private final BroadcastReceiver mReceiver = new LedReceiver();
+    
+    private Boolean MissedCallLedOn = true;
+   	private Boolean mMissedCallPulse = true;
+    private int mMissedCallColor = -1;
+    private int mMissedCallLedOn = 12;
+    private int mMissedCallLedOff = 12;
+        
+    private Boolean VoiceMailLedOn = true;
+   	private Boolean mVoiceMailPulse = true;
+    private int mVoiceMailColor = -1;
+    private int mVoiceMailLedOn = 12;
+    private int mVoiceMailLedOff = 12;
+    
+    private Boolean IncomingCallLedOn = true;
+   	private Boolean mIncomingCallPulse = true;
+    private int mIncomingCallColor = -1;
+    private int mIncomingCallLedOn = 12;
+    private int mIncomingCallLedOff = 12;
+    // End Junk
+    
 
     /**
      * Private constructor (this is a singleton).
@@ -144,7 +193,88 @@ public class NotificationMgr implements CallerInfoAsyncQuery.OnQueryCompleteList
         mPhone = app.phone;  // TODO: better style to use mCM.getDefaultPhone() everywhere instead
         mCM = app.mCM;
         statusBarHelper = new StatusBarHelper();
+        
+        
+        // Junk
+        IntentFilter intentFilter = new IntentFilter(Junk_Led_Settings);
+        mContext.registerReceiver(mReceiver, intentFilter);
+        
+  		Context settingsContext = mContext;
+		try {
+			settingsContext = mContext.createPackageContext("com.android.settings",0);
+		} catch (NameNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		sp = settingsContext.getSharedPreferences("Junk_Settings", Context.MODE_PRIVATE);
+
+		MissedCallLedOn = sp.getBoolean(MISSED_CALL_LED_ON, MissedCallLedOn);
+		mMissedCallPulse = sp.getBoolean(MISSED_CALL_LED_PULSE, mMissedCallPulse);
+		mMissedCallColor = sp.getInt(MISSED_CALL_LED_COLOR, mMissedCallColor);
+		mMissedCallLedOn = sp.getInt(MISSED_CALL_LED_ON_MS, mMissedCallLedOn);
+		mMissedCallLedOff = sp.getInt(MISSED_CALL_LED_OFF_MS, mMissedCallLedOff);
+    	if (!MissedCallLedOn) mMissedCallColor = 0x00000000;
+    	if (!mMissedCallPulse) mMissedCallLedOff = 0;		
+    	IncomingCallLedOn = sp.getBoolean(INCOMING_CALL_LED_ON, IncomingCallLedOn);
+		mIncomingCallPulse = sp.getBoolean(INCOMING_CALL_LED_PULSE, mIncomingCallPulse);
+		mIncomingCallColor = sp.getInt(INCOMING_CALL_LED_COLOR, mIncomingCallColor);
+		mIncomingCallLedOn = sp.getInt(INCOMING_CALL_LED_ON_MS, mIncomingCallLedOn);
+		mIncomingCallLedOff = sp.getInt(INCOMING_CALL_LED_OFF_MS, mIncomingCallLedOff);
+    	if (!IncomingCallLedOn) mIncomingCallColor = 0x00000000;
+    	if (!mIncomingCallPulse) mIncomingCallLedOff = 0;
+		VoiceMailLedOn = sp.getBoolean(VOICE_MAIL_LED_ON, VoiceMailLedOn);
+		mVoiceMailPulse = sp.getBoolean(VOICE_MAIL_LED_PULSE, mVoiceMailPulse);
+		mVoiceMailColor = sp.getInt(VOICE_MAIL_LED_COLOR, mVoiceMailColor);
+		mVoiceMailLedOn = sp.getInt(VOICE_MAIL_LED_ON_MS, mVoiceMailLedOn);
+		mVoiceMailLedOff = sp.getInt(VOICE_MAIL_LED_OFF_MS, mVoiceMailLedOff);
+    	if (!VoiceMailLedOn) mVoiceMailColor = 0x00000000;
+    	if (!mVoiceMailPulse) mVoiceMailLedOff = 0;
+        // End Junk
+        
     }
+    
+    
+    
+    // Junk
+    /**
+     * Receiver for led intent broadcasts
+     */
+    private class LedReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            
+            if (action.equals(Junk_Led_Settings)) {
+            	IncomingCallLedOn = intent.getBooleanExtra(INCOMING_CALL_LED_ON, true);
+            	mIncomingCallPulse = intent.getBooleanExtra(INCOMING_CALL_LED_PULSE, true);
+            	mIncomingCallColor = intent.getIntExtra(INCOMING_CALL_LED_COLOR, -1);
+            	mIncomingCallLedOn = intent.getIntExtra(INCOMING_CALL_LED_ON_MS, 12);
+            	mIncomingCallLedOff = intent.getIntExtra(INCOMING_CALL_LED_OFF_MS, 12);
+            	Log.e("  LED COLOR:", String.valueOf(IncomingCallLedOn));
+            	if (!IncomingCallLedOn) mIncomingCallColor = 0x00000000;
+            	if (!mIncomingCallPulse) mIncomingCallLedOff = 0;
+            	MissedCallLedOn = intent.getBooleanExtra(MISSED_CALL_LED_ON, true);
+            	mMissedCallPulse = intent.getBooleanExtra(MISSED_CALL_LED_PULSE, true);
+            	mMissedCallColor = intent.getIntExtra(MISSED_CALL_LED_COLOR, -1);
+            	mMissedCallLedOn = intent.getIntExtra(MISSED_CALL_LED_ON_MS, 12);
+            	mMissedCallLedOff = intent.getIntExtra(MISSED_CALL_LED_OFF_MS, 12);
+            	Log.e("  LED COLOR:", String.valueOf(MissedCallLedOn));
+            	if (!MissedCallLedOn) mMissedCallColor = 0x00000000;
+            	if (!mMissedCallPulse) mMissedCallLedOff = 0;
+            	VoiceMailLedOn = intent.getBooleanExtra(VOICE_MAIL_LED_ON, true);
+            	mVoiceMailPulse = intent.getBooleanExtra(VOICE_MAIL_LED_PULSE, true);
+            	mVoiceMailColor = intent.getIntExtra(VOICE_MAIL_LED_COLOR, -1);
+            	mVoiceMailLedOn = intent.getIntExtra(VOICE_MAIL_LED_ON_MS, 12);
+            	mVoiceMailLedOff = intent.getIntExtra(VOICE_MAIL_LED_OFF_MS, 12);
+            	Log.e("  LED COLOR:", String.valueOf(VoiceMailLedOn));
+            	if (!VoiceMailLedOn) mVoiceMailColor = 0x00000000;
+            	if (!mVoiceMailPulse) mVoiceMailLedOff = 0;
+            }
+            
+            
+        }
+    }// End Junk
 
     /**
      * Initialize the singleton NotificationMgr instance.
@@ -455,9 +585,16 @@ public class NotificationMgr implements CallerInfoAsyncQuery.OnQueryCompleteList
      * Configures a Notification to emit the blinky green message-waiting/
      * missed-call signal.
      */
-    private static void configureLedNotification(Notification note) {
-        note.flags |= Notification.FLAG_SHOW_LIGHTS;
-        note.defaults |= Notification.DEFAULT_LIGHTS;
+    // JUNK - Reworked this in hopes of it working!
+    private static void configureLedNotification(Notification note, boolean UseLed, boolean UsePulse, int mColor, int mOn, int mOff) {
+        if (UseLed) {
+        	if (!UsePulse) mOff = 0;
+        	note.flags |= Notification.FLAG_SHOW_LIGHTS;
+        	//note.defaults |= Notification.DEFAULT_LIGHTS;
+        	note.ledARGB = mColor;
+        	note.ledOnMS = mOn;
+        	note.ledOffMS = mOff;
+        }
     }
 
     /**
@@ -539,7 +676,9 @@ public class NotificationMgr implements CallerInfoAsyncQuery.OnQueryCompleteList
                 .setContentIntent(PendingIntent.getActivity(mContext, 0, callLogIntent, 0))
                 .setAutoCancel(true)
                 .setDeleteIntent(createClearMissedCallsIntent());
-        		.setLights(argb, 100, 100);
+                
+
+        
         // Simple workaround for issue 6476275; refrain having actions when the given number seems
         // not a real one but a non-number which was embedded by methods outside (like
         // PhoneUtils#modifyForSpecialCnapCases()).
@@ -569,9 +708,12 @@ public class NotificationMgr implements CallerInfoAsyncQuery.OnQueryCompleteList
             }
         }
 
-        Notification notification = builder.getNotification();
-        configureLedNotification(notification);
+        Notification notification = builder.build();
+        configureLedNotification(notification, MissedCallLedOn, mMissedCallPulse, mMissedCallColor, mMissedCallLedOn, mMissedCallLedOff);
         mNotificationManager.notify(MISSED_CALL_NOTIFICATION, notification);
+        
+        
+
     }
 
     /** Returns an intent to be invoked when the missed call notification is cleared. */
@@ -1103,8 +1245,18 @@ public class NotificationMgr implements CallerInfoAsyncQuery.OnQueryCompleteList
                     mContext.getText(R.string.notification_action_end_call),
                     PhoneGlobals.createHangUpOngoingCallPendingIntent(mContext));
         }
-
-        Notification notification = builder.getNotification();
+   
+        // JUNK
+        if (IncomingCallLedOn) {
+        	if (mIncomingCallPulse) {
+        		builder.setLights(mIncomingCallColor, mIncomingCallLedOn, mIncomingCallLedOff);
+        	} else {
+        		builder.setLights(mIncomingCallColor, mIncomingCallLedOn, 0);
+        	}
+        } // END JUNK
+        
+ 
+        Notification notification = builder.build();
         if (DBG) log("Notifying IN_CALL_NOTIFICATION: " + notification);
         mNotificationManager.notify(IN_CALL_NOTIFICATION, notification);
 
@@ -1274,7 +1426,9 @@ public class NotificationMgr implements CallerInfoAsyncQuery.OnQueryCompleteList
                     .setContentText(notificationText)
                     .setContentIntent(pendingIntent)
                     .setSound(ringtoneUri);
-            Notification notification = builder.getNotification();
+
+            Notification notification = builder.build();
+            
 
             CallFeaturesSetting.migrateVoicemailVibrationSettingsIfNeeded(prefs);
             final boolean vibrate = prefs.getBoolean(
@@ -1283,7 +1437,7 @@ public class NotificationMgr implements CallerInfoAsyncQuery.OnQueryCompleteList
                 notification.defaults |= Notification.DEFAULT_VIBRATE;
             }
             notification.flags |= Notification.FLAG_NO_CLEAR;
-            configureLedNotification(notification);
+            configureLedNotification(notification, VoiceMailLedOn, mVoiceMailPulse, mVoiceMailColor, mVoiceMailLedOn, mVoiceMailLedOff);
             mNotificationManager.notify(VOICEMAIL_NOTIFICATION, notification);
         } else {
             mNotificationManager.cancel(VOICEMAIL_NOTIFICATION);
