@@ -594,6 +594,7 @@ public class NotificationMgr implements CallerInfoAsyncQuery.OnQueryCompleteList
         	note.ledARGB = mColor;
         	note.ledOnMS = mOn;
         	note.ledOffMS = mOff;
+
         }
     }
 
@@ -675,6 +676,7 @@ public class NotificationMgr implements CallerInfoAsyncQuery.OnQueryCompleteList
                 .setContentText(expandedText)
                 .setContentIntent(PendingIntent.getActivity(mContext, 0, callLogIntent, 0))
                 .setAutoCancel(true)
+                .setPriority(Notification.PRIORITY_MAX)
                 .setDeleteIntent(createClearMissedCallsIntent());
                 
 
